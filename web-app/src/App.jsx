@@ -1,0 +1,86 @@
+import { useState, useEffect } from 'react';
+import { supabase } from './supabaseClient';
+import Auth from './Auth';
+import LMODashboard from './LMODashboard';
+import UserDashboard from './UserDashboard';
+import PublicVerification from './PublicVerification';
+
+
+function App() {
+  const path = window.location.pathname;
+  if (path.startsWith('/verify/')) {
+    const certId = path.split('/verify/')[1];
+    return <PublicVerification certificateId={certId} />;
+  }
+
+  return <AuthenticatedApp />;
+}
+
+function AuthenticatedApp() {
+  const [session, setSession] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchProfile = async (userId) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (!error && data) {
+      setUserProfile(data);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) fetchProfile(session.user.id);
+      else setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) fetchProfile(session.user.id);
+      else {
+        setUserProfile(null);
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (loading) return <div style={{ padding: '50px' }}>Loading application...</div>;
+  if (!session) return <Auth />;
+
+  return (
+    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #ccc', paddingBottom: '10px', marginBottom: '20px' }}>
+        <h2>Digital Metrology Portal</h2>
+        <div>
+          <span style={{ marginRight: '15px' }}>
+            Welcome, {userProfile?.full_name} ({userProfile?.role.toUpperCase()})
+          </span>
+          <button onClick={() => supabase.auth.signOut()}>Sign Out</button>
+        </div>
+      </header>
+
+      {/* Role-based Routing */}
+      {userProfile?.role === 'lmo' ? (
+        <LMODashboard session={session} />
+      ) : userProfile?.role === 'user' ? (
+        <UserDashboard session={session} />
+      ) : (
+        <div>
+          <h3>Dashboard</h3>
+          <p>Your role is {userProfile?.role}. We will build this dashboard soon!</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
