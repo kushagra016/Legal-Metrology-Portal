@@ -8,22 +8,25 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState('user');
+  
+  // NEW: State for on-screen messages
+  const [message, setMessage] = useState({ text: '', type: '' });
 
   const handleAuth = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setMessage({ text: '', type: '' }); // Clear any previous messages when clicking submit
 
     try {
       if (isLogin) {
-        // Log in existing user
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
-        alert('Logged in successfully!');
+        // NEW: Replaced alert() with setMessage()
+        setMessage({ text: 'Logged in successfully!', type: 'success' }); 
       } else {
-        // Register new user and pass role/name to metadata
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -35,10 +38,12 @@ export default function Auth() {
           }
         });
         if (error) throw error;
-        alert('Registration successful! Please check your email to verify.');
+        // NEW: Replaced alert() with setMessage()
+        setMessage({ text: 'Registration successful! Please check your email to verify.', type: 'success' });
       }
     } catch (error) {
-      alert(error.message);
+        // NEW: Replaced alert() with setMessage()
+        setMessage({ text: error.message, type: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -51,6 +56,22 @@ export default function Auth() {
           <h2>{isLogin ? 'Login' : 'Register Stakeholder'}</h2>
           <p>Digital Metrology System (SIH 26036)</p>
         </div>
+
+        {/* NEW: The notification banner that appears on the screen */}
+        {message.text && (
+          <div style={{
+            padding: '12px',
+            marginBottom: '20px',
+            borderRadius: '8px',
+            textAlign: 'center',
+            fontWeight: '500',
+            backgroundColor: message.type === 'error' ? '#ffebee' : '#e8f5e9',
+            color: message.type === 'error' ? '#c62828' : '#2e7d32',
+            border: `1px solid ${message.type === 'error' ? '#ef9a9a' : '#a5d6a7'}`
+          }}>
+            {message.text}
+          </div>
+        )}
 
         <form className="auth-form" onSubmit={handleAuth}>
           {!isLogin && (
@@ -91,7 +112,10 @@ export default function Auth() {
           </button>
         </form>
 
-        <div className="auth-toggle" onClick={() => setIsLogin(!isLogin)}>
+        <div className="auth-toggle" onClick={() => {
+            setIsLogin(!isLogin);
+            setMessage({ text: '', type: '' }); // Clear messages when switching tabs
+        }}>
           {isLogin ? 'Need an account? Register here' : 'Already have an account? Log in'}
         </div>
       </div>

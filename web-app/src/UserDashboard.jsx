@@ -12,8 +12,8 @@ export default function UserDashboard({ session }) {
     const [serialNumber, setSerialNumber] = useState('');
     const [capacity, setCapacity] = useState('');
     const [location, setLocation] = useState('');
-    // Add this with your other form states
     const [photoFile, setPhotoFile] = useState(null);
+    const [message, setMessage] = useState({ text: '', type: '' });
 
     const fetchMyInstruments = useCallback(async () => {
         setLoading(true);
@@ -51,12 +51,11 @@ export default function UserDashboard({ session }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setMessage({ text: '', type: '' }); // Clear old messages
 
         let photoUrl = null;
 
-        // 1. Upload the photograph if one was selected
         if (photoFile) {
-            // Create a unique file name to prevent accidental overwrites
             const fileExt = photoFile.name.split('.').pop();
             const fileName = `${session.user.id}-${Date.now()}.${fileExt}`;
 
@@ -65,62 +64,43 @@ export default function UserDashboard({ session }) {
                 .upload(fileName, photoFile);
 
             if (uploadError) {
-                alert('Error uploading photo: ' + uploadError.message);
+                setMessage({ text: 'Error uploading photo: ' + uploadError.message, type: 'error' });
                 setLoading(false);
                 return;
             }
-
-            // Get the public URL for the uploaded photo
-            const { data: publicUrlData } = supabase.storage
-                .from('documents')
-                .getPublicUrl(fileName);
-
+            const { data: publicUrlData } = supabase.storage.from('documents').getPublicUrl(fileName);
             photoUrl = publicUrlData.publicUrl;
         }
 
-        // 2. Save the instrument details to the database (now including photo_url)
         const { data: instrumentData, error: instError } = await supabase
             .from('instruments')
             .insert([{
-                user_id: session.user.id,
-                category,
-                model_number: modelNumber,
-                serial_number: serialNumber,
-                capacity,
-                location_address: location,
-                photo_url: photoUrl
+                user_id: session.user.id, category, model_number: modelNumber,
+                serial_number: serialNumber, capacity, location_address: location, photo_url: photoUrl
             }])
-            .select()
-            .single();
+            .select().single();
 
         if (instError) {
-            // NEW: Catch the specific duplicate serial number error (PostgreSQL error code 23505)
             if (instError.code === '23505') {
-                alert("An instrument with this Serial Number is already registered in the system. Please check your serial number.");
+                setMessage({ text: 'An instrument with this Serial Number is already registered.', type: 'error' });
             } else {
-                alert('Error adding instrument: ' + instError.message);
+                setMessage({ text: 'Error adding instrument: ' + instError.message, type: 'error' });
             }
             setLoading(false);
             return;
         }
 
-        // 3. Automatically create a pending verification request for the LMO workflow
         const { error: reqError } = await supabase
             .from('verification_requests')
-            .insert([{
-                instrument_id: instrumentData.id,
-                user_id: session.user.id,
-                status: 'pending'
-            }]);
+            .insert([{ instrument_id: instrumentData.id, user_id: session.user.id, status: 'pending' }]);
 
         if (reqError) {
-            alert('Error submitting application: ' + reqError.message);
+            setMessage({ text: 'Error submitting application: ' + reqError.message, type: 'error' });
         } else {
-            alert('Instrument submitted for verification successfully!');
+            setMessage({ text: 'Instrument submitted for verification successfully!', type: 'success' });
             setShowForm(false);
-            // Reset form
             setModelNumber(''); setSerialNumber(''); setCapacity(''); setLocation(''); setPhotoFile(null);
-            fetchMyInstruments(); // Refresh the list
+            fetchMyInstruments();
         }
         setLoading(false);
     };
@@ -131,10 +111,25 @@ export default function UserDashboard({ session }) {
         <div className="card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 style={{ margin: 0, color: '#203a43' }}>My Instruments & Applications</h3>
-                <button className="btn-primary" onClick={() => setShowForm(!showForm)}>
+                <button className="btn-primary" onClick={() => {
+                    setShowForm(!showForm);
+                    setMessage({ text: '', type: '' }); // Clear message when toggling form
+                }}>
                     {showForm ? 'Cancel' : '+ Apply for Verification'}
                 </button>
             </div>
+
+            {/* NEW: On-screen notification banner */}
+            {message.text && (
+                <div style={{
+                    padding: '12px', marginTop: '20px', borderRadius: '8px', textAlign: 'center', fontWeight: '500',
+                    backgroundColor: message.type === 'error' ? '#ffebee' : '#e8f5e9',
+                    color: message.type === 'error' ? '#c62828' : '#2e7d32',
+                    border: `1px solid ${message.type === 'error' ? '#ef9a9a' : '#a5d6a7'}`
+                }}>
+                    {message.text}
+                </div>
+            )}
 
             {showForm && (
                 <div style={{ backgroundColor: '#f8f9fa', padding: '25px', marginTop: '20px', borderRadius: '8px', border: '1px solid #dee2e6' }}>

@@ -5,7 +5,8 @@ import CertificateView from './CertificateView'; // 1. Import the view
 export default function GATCDashboard({ session }) {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewCertId, setViewCertId] = useState(null); // 2. Track which certificate to view
+  const [viewCertId, setViewCertId] = useState(null);
+  const [message, setMessage] = useState({ text: '', type: '' });
 
   async function fetchAssignedRequests() {
     setLoading(true);
@@ -37,18 +38,20 @@ export default function GATCDashboard({ session }) {
   }, []);
 
   const updateStatus = async (requestId, instrumentId, newStatus) => {
+    setMessage({ text: '', type: '' }); // Clear old messages
+
     const { error } = await supabase
       .from('verification_requests')
       .update({ status: newStatus })
       .eq('id', requestId);
       
     if (error) {
-      alert("Error updating status: " + error.message);
+      setMessage({ text: "Error updating status: " + error.message, type: 'error' });
       return;
     }
 
     if (newStatus === 'approved') {
-      // Use the request ID as a stable certificate number so rendering remains pure.
+      // Use the request ID to keep certificate numbers stable across renders.
       const certNumber = `CERT-${requestId}`;
       const expiryDate = new Date();
       expiryDate.setFullYear(expiryDate.getFullYear() + 1);
@@ -64,13 +67,13 @@ export default function GATCDashboard({ session }) {
         }]);
 
       if (certError) {
-        alert("Error generating certificate: " + certError.message);
+        setMessage({ text: "Error generating certificate: " + certError.message, type: 'error' });
         return;
       }
     }
 
-    fetchAssignedRequests();
-    alert(`Status updated to ${newStatus.toUpperCase()} successfully!`);
+    fetchAssignedRequests(); 
+    setMessage({ text: `Status updated to ${newStatus.replace('_', ' ').toUpperCase()} successfully!`, type: 'success' });
   };
 
   if (loading) return <p>Loading your assigned tasks...</p>;
@@ -96,6 +99,18 @@ export default function GATCDashboard({ session }) {
       <h3 style={{ margin: '0 0 5px 0', color: '#203a43' }}>GATC Testing Centre Dashboard</h3>
       <p style={{ color: '#6c757d', margin: '0 0 20px 0' }}>Monitor your assigned verification activities below.</p>
       
+      {/* NEW: On-screen notification banner */}
+      {message.text && (
+        <div style={{
+          padding: '12px', marginBottom: '20px', borderRadius: '8px', textAlign: 'center', fontWeight: '500',
+          backgroundColor: message.type === 'error' ? '#ffebee' : '#e8f5e9',
+          color: message.type === 'error' ? '#c62828' : '#2e7d32',
+          border: `1px solid ${message.type === 'error' ? '#ef9a9a' : '#a5d6a7'}`
+        }}>
+          {message.text}
+        </div>
+      )}
+
       <table className="modern-table">
         <thead>
           <tr>
