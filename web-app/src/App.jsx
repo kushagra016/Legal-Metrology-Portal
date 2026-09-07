@@ -4,6 +4,8 @@ import Auth from './Auth';
 import LMODashboard from './LMODashboard';
 import UserDashboard from './UserDashboard';
 import PublicVerification from './PublicVerification';
+import AdminDashboard from './AdminDashboard';
+import GATCDashboard from './GATCDashboard';
 
 
 function App() {
@@ -75,10 +77,14 @@ function AuthenticatedApp() {
         <LMODashboard session={session} />
       ) : userProfile?.role === 'user' ? (
         <UserDashboard session={session} />
+      ) : userProfile?.role === 'gatc' ? (
+        <GATCDashboard session={session} />
+      ) : userProfile?.role === 'admin' ? (
+        <AdminDashboard />
       ) : (
         <div className="card">
           <h3>Dashboard</h3>
-          <p>Your role is {userProfile?.role}.</p>
+          <p>Invalid role detected.</p>
         </div>
       )}
     </div>
