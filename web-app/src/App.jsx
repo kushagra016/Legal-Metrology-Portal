@@ -50,7 +50,7 @@ function App() {
   // ==========================================
   // 2. ROUTING (Runs safely after hooks)
   // ==========================================
-  
+
   // A. Check for Public QR Verification Route
   const path = window.location.pathname;
   if (path.startsWith('/verify/')) {
@@ -60,7 +60,7 @@ function App() {
 
   // B. Handle Loading State
   if (loading) return <div style={{ padding: '50px' }}>Loading application...</div>;
-  
+
   // C. Handle Unauthenticated Users
   if (!session) return <Auth />;
 
@@ -82,7 +82,14 @@ function App() {
       </header>
 
       {/* Role-based Routing */}
-      {userProfile?.role === 'lmo' ? (
+      {['lmo', 'gatc'].includes(userProfile?.role) && !userProfile?.is_approved ? (
+        <div className="card" style={{ textAlign: 'center', padding: '50px' }}>
+          <h2 style={{ color: '#856404' }}>⏳ Account Pending Approval</h2>
+          <p style={{ fontSize: '16px', color: '#6c757d', maxWidth: '500px', margin: '0 auto' }}>
+            Your registration as an official {userProfile?.role.toUpperCase()} has been received. You will gain access to the secure dashboard once an Administrator verifies your credentials.
+          </p>
+        </div>
+      ) : userProfile?.role === 'lmo' ? (
         <LMODashboard session={session} />
       ) : userProfile?.role === 'user' ? (
         <UserDashboard session={session} />
