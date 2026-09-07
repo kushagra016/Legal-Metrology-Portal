@@ -7,22 +7,7 @@ import PublicVerification from './PublicVerification';
 import AdminDashboard from './AdminDashboard';
 import GATCDashboard from './GATCDashboard';
 
-
 function App() {
-  const path = window.location.pathname;
-  if (path.startsWith('/verify/')) {
-    const certId = path.split('/verify/')[1];
-    return <PublicVerification certificateId={certId} />;
-  }
-
-  return <AuthenticatedApp />;
-}
-
-function AuthenticatedApp() {
-  const [session, setSession] = useState(null);
-  const [userProfile, setUserProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-
   const fetchProfile = async (userId) => {
     const { data, error } = await supabase
       .from('profiles')
@@ -35,6 +20,13 @@ function AuthenticatedApp() {
     }
     setLoading(false);
   };
+
+  // ==========================================
+  // 1. ALL HOOKS MUST COME FIRST
+  // ==========================================
+  const [session, setSession] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -55,16 +47,33 @@ function AuthenticatedApp() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // ==========================================
+  // 2. ROUTING (Runs safely after hooks)
+  // ==========================================
+  
+  // A. Check for Public QR Verification Route
+  const path = window.location.pathname;
+  if (path.startsWith('/verify/')) {
+    const certId = path.split('/verify/')[1];
+    return <PublicVerification certificateId={certId} />;
+  }
+
+  // B. Handle Loading State
   if (loading) return <div style={{ padding: '50px' }}>Loading application...</div>;
+  
+  // C. Handle Unauthenticated Users
   if (!session) return <Auth />;
 
+  // ==========================================
+  // 3. MAIN DASHBOARD UI
+  // ==========================================
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
         <h2>Digital Metrology Portal</h2>
         <div className="user-info">
           <span>
-            Welcome, {userProfile?.full_name} ({userProfile?.role.toUpperCase()})
+            Welcome, {userProfile?.full_name} ({userProfile?.role?.toUpperCase()})
           </span>
           <button className="btn-outline" onClick={() => supabase.auth.signOut()}>
             Sign Out
