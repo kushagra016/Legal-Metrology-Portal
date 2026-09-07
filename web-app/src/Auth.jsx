@@ -54,7 +54,7 @@ export default function Auth() {
       <div className="auth-card">
         <div className="auth-header">
           <h2>{isLogin ? 'Login' : 'Register Stakeholder'}</h2>
-          <p>Digital Metrology System (SIH 26036)</p>
+          <p>Digital Metrology Portal</p>
         </div>
 
         {/* NEW: The notification banner that appears on the screen */}
@@ -108,7 +108,7 @@ export default function Auth() {
           />
           
           <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Processing...' : (isLogin ? 'Secure Log In' : 'Create Account')}
+            {isLoading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
           </button>
         </form>
 
