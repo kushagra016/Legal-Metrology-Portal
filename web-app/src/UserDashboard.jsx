@@ -123,73 +123,77 @@ export default function UserDashboard({ session }) {
     if (loading) return <p>Loading your instruments...</p>;
 
     return (
-        <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3>My Instruments & Applications</h3>
-                <button onClick={() => setShowForm(!showForm)} style={{ backgroundColor: '#0056b3', color: 'white' }}>
-                    {showForm ? 'Cancel' : '+ Apply for Verification'}
-                </button>
-            </div>
+    <div className="card">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h3 style={{ margin: 0, color: '#203a43' }}>My Instruments & Applications</h3>
+        <button className="btn-primary" onClick={() => setShowForm(!showForm)}>
+          {showForm ? 'Cancel' : '+ Apply for Verification'}
+        </button>
+      </div>
 
-            {showForm && (
-                <div style={{ backgroundColor: '#f9f9f9', padding: '20px', marginTop: '20px', border: '1px solid #ddd' }}>
-                    <h4>Submit New Instrument Details</h4>
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '400px' }}>
-                        <label>Instrument Category</label>
-                        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-                            <option value="Electronic Weighing Balance">Electronic Weighing Balance</option>
-                            <option value="Fuel Dispenser">Fuel Dispenser</option>
-                            <option value="Storage Tank">Storage Tank</option>
-                            <option value="Weighbridge">Weighbridge</option>
-                        </select>
+      {showForm && (
+        <div style={{ backgroundColor: '#f8f9fa', padding: '25px', marginTop: '20px', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+          <h4 style={{ margin: '0 0 15px 0' }}>Submit New Instrument Details</h4>
+          <form className="auth-form" onSubmit={handleSubmit} style={{ maxWidth: '500px' }}>
+            <label style={{ fontSize: '14px', fontWeight: '600', color: '#495057' }}>Instrument Category</label>
+            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+              <option value="Electronic Weighing Balance">Electronic Weighing Balance</option>
+              <option value="Fuel Dispenser">Fuel Dispenser</option>
+              <option value="Storage Tank">Storage Tank</option>
+              <option value="Weighbridge">Weighbridge</option>
+            </select>
 
-                        <input type="text" placeholder="Model Number" value={modelNumber} onChange={(e) => setModelNumber(e.target.value)} required />
-                        <input type="text" placeholder="Serial Number" value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} required />
-                        <input type="text" placeholder="Capacity (e.g., 50 kg)" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
-                        <textarea placeholder="Location Address (Where is the instrument located?)" value={location} onChange={(e) => setLocation(e.target.value)} required />
-                        {/* Inside your form block, add this input */}
-                        <label style={{ marginTop: '10px' }}>Instrument Photograph (Required):</label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setPhotoFile(e.target.files[0])}
-                            required
-                        />
-                        <button type="submit" style={{ backgroundColor: 'green', color: 'white', marginTop: '10px' }}>Submit Application</button>
-                    </form>
-                </div>
-            )}
-
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-                <thead>
-                    <tr style={{ backgroundColor: '#f4f4f4', textAlign: 'left' }}>
-                        <th style={{ padding: '10px', border: '1px solid #ddd' }}>Instrument</th>
-                        <th style={{ padding: '10px', border: '1px solid #ddd' }}>Serial No.</th>
-                        <th style={{ padding: '10px', border: '1px solid #ddd' }}>Capacity</th>
-                        <th style={{ padding: '10px', border: '1px solid #ddd' }}>Verification Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {instruments.length === 0 ? (
-                        <tr><td colSpan="4" style={{ padding: '10px', textAlign: 'center' }}>No instruments registered yet.</td></tr>
-                    ) : (
-                        instruments.map((inst) => {
-                            const req = inst.verification_requests[0]; // Get the latest request
-                            return (
-                                <tr key={inst.id}>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>{inst.category} <br /><small>{inst.model_number}</small></td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>{inst.serial_number}</td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>{inst.capacity}</td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                                        <strong>{req ? req.status.toUpperCase() : 'NO REQUEST'}</strong>
-                                        {req && req.scheduled_date && <><br /><small>Date: {req.scheduled_date}</small></>}
-                                    </td>
-                                </tr>
-                            )
-                        })
-                    )}
-                </tbody>
-            </table>
+            <input type="text" placeholder="Model Number" value={modelNumber} onChange={(e) => setModelNumber(e.target.value)} required />
+            <input type="text" placeholder="Serial Number" value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} required />
+            <input type="text" placeholder="Capacity (e.g., 50 kg)" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
+            <textarea style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontFamily: 'inherit' }} placeholder="Location Address (Where is the instrument located?)" value={location} onChange={(e) => setLocation(e.target.value)} required />
+            
+            <label style={{ fontSize: '14px', fontWeight: '600', color: '#495057', marginTop: '5px' }}>Instrument Photograph (Required):</label>
+            <input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files[0])} required />
+            
+            <button className="btn-success" type="submit" disabled={loading} style={{ marginTop: '15px' }}>
+              {loading ? 'Submitting...' : 'Submit Application'}
+            </button>
+          </form>
         </div>
-    );
+      )}
+
+      <table className="modern-table">
+        <thead>
+          <tr>
+            <th>Instrument</th>
+            <th>Serial No.</th>
+            <th>Capacity</th>
+            <th>Verification Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {instruments.length === 0 ? (
+            <tr><td colSpan="4" style={{ textAlign: 'center', color: '#6c757d' }}>No instruments registered yet.</td></tr>
+          ) : (
+            instruments.map((inst) => {
+              const req = inst.verification_requests[0];
+              return (
+                <tr key={inst.id}>
+                  <td><strong>{inst.category}</strong> <br/><small style={{ color: '#6c757d' }}>Model: {inst.model_number}</small></td>
+                  <td>{inst.serial_number}</td>
+                  <td>{inst.capacity}</td>
+                  <td>
+                    {req ? (
+                      <span className={`status-badge status-${req.status}`}>
+                        {req.status.replace('_', ' ')}
+                      </span>
+                    ) : (
+                      <span className="status-badge" style={{ background: '#e2e3e5' }}>NO REQUEST</span>
+                    )}
+                    {req && req.scheduled_date && <div style={{ marginTop: '5px', fontSize: '0.85em', color: '#6c757d' }}>Date: {req.scheduled_date}</div>}
+                  </td>
+                </tr>
+              )
+            })
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 }

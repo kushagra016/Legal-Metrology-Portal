@@ -92,61 +92,52 @@ export default function LMODashboard({ session }) {
 
   // 5. Otherwise, show the normal dashboard table
   return (
-    <div>
-      <h3>LMO Inspection Dashboard</h3>
-      <p>Monitor your assigned verification activities below.</p>
+    <div className="card">
+      <h3 style={{ margin: '0 0 5px 0', color: '#203a43' }}>LMO Inspection Dashboard</h3>
+      <p style={{ color: '#6c757d', margin: '0 0 20px 0' }}>Monitor your assigned verification activities below.</p>
       
-      <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+      <table className="modern-table">
         <thead>
-          <tr style={{ backgroundColor: '#f4f4f4', textAlign: 'left' }}>
-            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Instrument Type</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Location</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Scheduled Date</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Status</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Action</th>
+          <tr>
+            <th>Instrument Type</th>
+            <th>Location</th>
+            <th>Scheduled Date</th>
+            <th>Status</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
           {requests.length === 0 ? (
             <tr>
-              <td colSpan="5" style={{ padding: '10px', textAlign: 'center' }}>No assigned requests found.</td>
+              <td colSpan="5" style={{ textAlign: 'center', color: '#6c757d' }}>No assigned requests found.</td>
             </tr>
           ) : (
             requests.map((req) => (
               <tr key={req.id}>
-                <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                  {req.instruments?.category} <br/>
-                  <small>(Model: {req.instruments?.model_number})</small>
+                <td>
+                  <strong>{req.instruments?.category}</strong> <br/>
+                  <small style={{ color: '#6c757d' }}>Model: {req.instruments?.model_number}</small>
                 </td>
-                <td style={{ padding: '10px', border: '1px solid #ddd' }}>{req.instruments?.location_address}</td>
-                <td style={{ padding: '10px', border: '1px solid #ddd' }}>{req.scheduled_date || 'Not scheduled'}</td>
-                <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                  <span style={{ 
-                    padding: '4px 8px', 
-                    borderRadius: '12px', 
-                    backgroundColor: req.status === 'pending' ? '#ffeeba' : '#d4edda',
-                    fontSize: '0.85em'
-                  }}>
-                    {req.status.toUpperCase()}
+                <td>{req.instruments?.location_address}</td>
+                <td>{req.scheduled_date || 'Not scheduled'}</td>
+                <td>
+                  <span className={`status-badge status-${req.status}`}>
+                    {req.status.replace('_', ' ')}
                   </span>
                 </td>
-                <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                <td>
                   {req.status === 'pending' && (
-                    <button onClick={() => updateStatus(req.id, req.instruments.id, 'in_inspection')}>
+                    <button className="btn-primary" onClick={() => updateStatus(req.id, req.instruments.id, 'in_inspection')}>
                       Start Inspection
                     </button>
                   )}
                   {req.status === 'in_inspection' && (
-                    <button onClick={() => updateStatus(req.id, req.instruments.id, 'approved')} style={{ backgroundColor: 'green', color: 'white' }}>
+                    <button className="btn-success" onClick={() => updateStatus(req.id, req.instruments.id, 'approved')}>
                       Approve Certificate
                     </button>
                   )}
-                  {/* NEW: The View Certificate button only appears AFTER approval */}
                   {req.status === 'approved' && req.verification_certificates?.length > 0 && (
-                    <button 
-                      onClick={() => setViewCertId(req.verification_certificates[0].id)} 
-                      style={{ backgroundColor: '#0056b3', color: 'white', padding: '5px 10px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                    >
+                    <button className="btn-outline" onClick={() => setViewCertId(req.verification_certificates[0].id)} style={{ marginLeft: '10px' }}>
                       View Certificate
                     </button>
                   )}

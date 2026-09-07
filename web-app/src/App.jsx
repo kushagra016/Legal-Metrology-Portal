@@ -57,14 +57,16 @@ function AuthenticatedApp() {
   if (!session) return <Auth />;
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #ccc', paddingBottom: '10px', marginBottom: '20px' }}>
+    <div className="dashboard-container">
+      <header className="dashboard-header">
         <h2>Digital Metrology Portal</h2>
-        <div>
-          <span style={{ marginRight: '15px' }}>
+        <div className="user-info">
+          <span>
             Welcome, {userProfile?.full_name} ({userProfile?.role.toUpperCase()})
           </span>
-          <button onClick={() => supabase.auth.signOut()}>Sign Out</button>
+          <button className="btn-outline" onClick={() => supabase.auth.signOut()}>
+            Sign Out
+          </button>
         </div>
       </header>
 
@@ -74,9 +76,9 @@ function AuthenticatedApp() {
       ) : userProfile?.role === 'user' ? (
         <UserDashboard session={session} />
       ) : (
-        <div>
+        <div className="card">
           <h3>Dashboard</h3>
-          <p>Your role is {userProfile?.role}. We will build this dashboard soon!</p>
+          <p>Your role is {userProfile?.role}.</p>
         </div>
       )}
     </div>
