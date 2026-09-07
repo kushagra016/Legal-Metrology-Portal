@@ -45,51 +45,56 @@ export default function Auth() {
   };
 
   return (
-    <div style={{ padding: '50px', maxWidth: '400px', margin: '0 auto' }}>
-      <h2>{isLogin ? 'Login to Metrology System' : 'Register Stakeholder'}</h2>
-      <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        
-        {!isLogin && (
-          <>
-            <input 
-              type="text" 
-              placeholder="Full Name / Organization Name" 
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required 
-            />
-            <select value={role} onChange={(e) => setRole(e.target.value)}>
-              <option value="user">General User / Business</option>
-              <option value="lmo">Legal Metrology Officer (LMO)</option>
-              <option value="gatc">Govt. Approved Test Centre (GATC)</option>
-              <option value="admin">Administrator</option>
-            </select>
-          </>
-        )}
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2>{isLogin ? 'Login' : 'Register Stakeholder'}</h2>
+          <p>Digital Metrology System (SIH 26036)</p>
+        </div>
 
-        <input 
-          type="email" 
-          placeholder="Email address" 
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required 
-        />
-        <input 
-          type="password" 
-          placeholder="Password" 
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required 
-        />
-        
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Loading...' : (isLogin ? 'Log In' : 'Sign Up')}
-        </button>
-      </form>
+        <form className="auth-form" onSubmit={handleAuth}>
+          {!isLogin && (
+            <>
+              <input 
+                type="text" 
+                placeholder="Full Name / Organization Name" 
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required 
+              />
+              <select value={role} onChange={(e) => setRole(e.target.value)}>
+                <option value="user">General User / Business</option>
+                <option value="lmo">Legal Metrology Officer (LMO)</option>
+                <option value="gatc">Govt. Approved Test Centre (GATC)</option>
+                <option value="admin">Administrator</option>
+              </select>
+            </>
+          )}
 
-      <p style={{ marginTop: '20px', cursor: 'pointer', color: 'blue' }} onClick={() => setIsLogin(!isLogin)}>
-        {isLogin ? 'Need an account? Register here' : 'Already have an account? Log in'}
-      </p>
+          <input 
+            type="email" 
+            placeholder="Email address" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required 
+          />
+          <input 
+            type="password" 
+            placeholder="Password" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required 
+          />
+          
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? 'Processing...' : (isLogin ? 'Secure Log In' : 'Create Account')}
+          </button>
+        </form>
+
+        <div className="auth-toggle" onClick={() => setIsLogin(!isLogin)}>
+          {isLogin ? 'Need an account? Register here' : 'Already have an account? Log in'}
+        </div>
+      </div>
     </div>
   );
 }
