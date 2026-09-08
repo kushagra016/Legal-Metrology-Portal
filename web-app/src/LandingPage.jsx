@@ -43,7 +43,7 @@ export default function LandingPage({ onLoginClick }) {
             </div>
             <div className="card" style={{ flex: 1, minWidth: '300px', margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <p style={{ fontSize: '16px', color: '#495057', marginBottom: '25px', lineHeight: '1.5' }}>Register instruments, submit applications, track inspections and manage certificates.</p>
-              <button onClick={onLoginClick} className="btn-primary" style={{ alignSelf: 'flex-start' }}>Shop Login</button>
+              <button onClick={onLoginClick} className="btn-primary" style={{ alignSelf: 'flex-start' }}>Vendor Login</button>
             </div>
             <div className="card" style={{ flex: 1, minWidth: '300px', margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <p style={{ fontSize: '16px', color: '#495057', marginBottom: '25px', lineHeight: '1.5' }}>Manage assigned work, schedule field visits, inspect instruments and submit results.</p>
@@ -63,7 +63,7 @@ export default function LandingPage({ onLoginClick }) {
           <div style={{ display: 'flex', gap: '15px', maxWidth: '600px', marginBottom: '80px' }}>
             <input 
               type="text" 
-              placeholder="Certificate ID — e.g. CERT-2026-0001" 
+              placeholder="Certificate ID" 
               value={certId}
               onChange={(e) => setCertId(e.target.value)}
               style={{ flex: 1, padding: '16px 20px', fontSize: '16px', border: '1px solid #cbd5e1', borderRadius: '8px', outline: 'none' }}
