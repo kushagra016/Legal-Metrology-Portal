@@ -6,9 +6,18 @@ import UserDashboard from './UserDashboard';
 import PublicVerification from './PublicVerification';
 import AdminDashboard from './AdminDashboard';
 import GATCDashboard from './GATCDashboard';
+import LandingPage from './LandingPage';
 
 function App() {
-  const fetchProfile = async (userId) => {
+  // ==========================================
+  // 1. ALL HOOKS MUST COME FIRST
+  // ==========================================
+  const [session, setSession] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showAuth, setShowAuth] = useState(false);
+
+  async function fetchProfile(userId) {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -19,14 +28,7 @@ function App() {
       setUserProfile(data);
     }
     setLoading(false);
-  };
-
-  // ==========================================
-  // 1. ALL HOOKS MUST COME FIRST
-  // ==========================================
-  const [session, setSession] = useState(null);
-  const [userProfile, setUserProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -62,7 +64,13 @@ function App() {
   if (loading) return <div style={{ padding: '50px' }}>Loading application...</div>;
 
   // C. Handle Unauthenticated Users
-  if (!session) return <Auth />;
+  // C. Handle Unauthenticated Users
+  if (!session) {
+    if (showAuth) {
+      return <Auth onBack={() => setShowAuth(false)} />;
+    }
+    return <LandingPage onLoginClick={() => setShowAuth(true)} />;
+  }
 
   // ==========================================
   // 3. MAIN DASHBOARD UI

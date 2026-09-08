@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from './supabaseClient';
 
-export default function Auth() {
+export default function Auth({ onBack }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -50,7 +50,16 @@ export default function Auth() {
   };
 
   return (
-    <div className="auth-container">
+    <div className="auth-container" style={{ position: 'relative' }}>
+      
+      {onBack && (
+        <button 
+          onClick={onBack} 
+          style={{ position: 'absolute', top: '40px', left: '40px', background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '16px', opacity: 0.8, fontWeight: '600' }}
+        >
+          &larr; Back to Home
+        </button>
+      )}
       <div className="auth-card">
         <div className="auth-header">
           <h2>{isLogin ? 'Login' : 'Register Stakeholder'}</h2>
